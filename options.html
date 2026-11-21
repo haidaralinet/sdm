@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Subzeo</title>
+<style>
+  body{font:13px system-ui,sans-serif;background:#14161c;color:#e6e8ee;width:340px;margin:0;padding:16px}
+  h1{font-size:16px;margin:0 0 12px}
+  label{display:block;margin:10px 0 4px;color:#9aa3b5}
+  input[type=text],input[type=number]{width:100%;box-sizing:border-box;background:#1b1e26;color:#e6e8ee;border:1px solid #2f3445;border-radius:8px;padding:8px}
+  .row{display:flex;gap:8px;align-items:center;margin-top:10px}
+  button{background:#6c5ce7;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+  #msg{margin-top:10px;min-height:18px}
+</style>
+<h1>Subzeo Integration</h1>
+<label>Token (copy from Subzeo → Settings)</label>
+<input id="token" type="text" placeholder="paste token here">
+<div class="row"><input id="intercept" type="checkbox"><span>Take over browser downloads</span></div>
+<label>Ignore files smaller than (MB, 0 = none)</label>
+<input id="minMB" type="number" min="0" value="0">
+<div class="row"><button id="save">Save &amp; test</button></div>
+<div id="msg"></div>
+<script src="options.js"></script>

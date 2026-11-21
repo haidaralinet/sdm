@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Subzeo Integration",
+  "version": "1.0.0",
+  "description": "Send browser downloads to Subzeo Download Manager.",
+  "permissions": ["downloads", "contextMenus", "storage", "cookies"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "options.html", "default_title": "Subzeo" },
+  "options_page": "options.html",
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" }
+}
