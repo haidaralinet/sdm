@@ -1,22 +1,56 @@
-# Subzeo Download Manager
+name: Build Subzeo for Windows
 
-## Run from source
-    pip install -r requirements.txt
-    python subzeo.py
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
 
-## Browser extension (Chrome / Edge / Brave)
-1. Open `chrome://extensions`, turn on Developer mode, click **Load unpacked**, pick the `extension` folder.
-2. In Subzeo open **Settings** and copy the *Browser extension token*.
-3. Click the Subzeo icon in the browser toolbar, paste the token, press **Save & test**.
-Browser downloads now go to Subzeo (if Subzeo is not running, the browser downloads normally).
-Right-click a link or video: *Download with Subzeo* / *Download this video with Subzeo*.
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
 
-## Video / audio
-Toolbar **Video** button (Ctrl+Shift+V). Needs `yt-dlp`; install `ffmpeg` for HD merging and MP3.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-## Scheduler
-Toolbar **Scheduler**: start/stop the queue at set times, and shut down / sleep / close when everything finishes.
-Add downloads with "Start immediately" unchecked so they wait for the scheduled start.
+      - name: Fix folder layout
+        shell: bash
+        run: |
+          mkdir -p assets extension
+          for f in icon.ico icon.png; do
+            if [ -f "$f" ]; then mv "$f" assets/; fi
+          done
+          for f in background.js manifest.json options.html options.js icon16.png icon48.png icon128.png; do
+            if [ -f "$f" ]; then mv "$f" extension/; fi
+          done
+          ls -R assets extension
 
-## Windows installer
-Run `build.bat` (needs Python; Inno Setup 6 for the installer). Output: `dist\Subzeo\Subzeo.exe` and `Output\Subzeo-Setup.exe`.
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt pyinstaller
+
+      - name: Build Subzeo.exe
+        run: >
+          pyinstaller --noconfirm --clean --windowed --name Subzeo
+          --icon assets/icon.ico --add-data "assets;assets"
+          --collect-all yt_dlp subzeo.py
+
+      - name: Build installer (Inno Setup)
+        continue-on-error: true
+        run: |
+          choco install innosetup -y --no-progress
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Upload portable app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Subzeo-portable
+          path: dist/Subzeo
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Subzeo-Setup
+          path: Output/Subzeo-Setup.exe
+          if-no-files-found: ignore
